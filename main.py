@@ -3,10 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from Login_manager.login import login_router as login
 
 from Accounts_manager.accounts import account_router as accounts
 from db.database import BASE_DIR, Base, engine
+from Login_manager.login import login_router as login
 
 # Ensure all tables defined on Base exist in users.db
 Base.metadata.create_all(bind=engine)
