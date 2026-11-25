@@ -1,4 +1,6 @@
-from fastapi import FastAPI
+from datetime import UTC, datetime
+
+from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.responses import FileResponse, HTMLResponse
@@ -7,6 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from Accounts_manager.accounts import account_router as accounts
 from db.database import BASE_DIR, Base, engine
 from Login_manager.login import login_router as login
+from models import HomeResponse
 
 # Ensure all tables defined on Base exist in users.db
 Base.metadata.create_all(bind=engine)
@@ -56,11 +59,22 @@ def redoc_html() -> HTMLResponse:
     )
 
 
-@app.get("/")
-def home() -> dict[str, str]:
-    """Health check / root endpoint."""
-    return {"message": "Server Running"}
-
+@app.get(
+    "/",
+    response_model=HomeResponse,
+    status_code=status.HTTP_200_OK,
+    tags=["General"],
+    summary="Root and health check endpoint",
+)
+async def home() -> HomeResponse:
+    """Combined root endpoint and operational health check."""
+    return HomeResponse(
+        message="Server Running",
+        status="healthy",
+        version=app.version,
+        timestamp=datetime.now(UTC).isoformat(),
+        docs_url="/docs",
+    )
 
 app.include_router(accounts)
 app.include_router(login)
